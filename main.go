@@ -17,29 +17,31 @@ var NonHttpsPort string
 var ExecPath string
 
 func main() {
-	// Define system variables
-	MainSiteURL = "10.0.0.2"
-	SitePort = "8443"
-	NonHttpsPort = "8080"
-	fmt.Println("The server ip is: " + GetServerIp(0))
-	openbrowser("http://" + MainSiteURL + ":" + NonHttpsPort + "/")
 	// get the path of the program.
 	var err2 error
 	ExecPath, err2 = filepath.Abs(filepath.Dir(os.Args[0]))
 	if err2 != nil {
 		log.Fatal(err2)
 	}
+	// Begins the startup script.
+	StartUp()
+	// Define system variables
+	MainSiteURL = "10.0.0.2"
+	SitePort = "8443"
+	NonHttpsPort = "8080"
+	fmt.Println("The server ip is: " + GetServerIp(0))
+	openbrowser("http://" + MainSiteURL + ":" + NonHttpsPort + "/")
 	//initPages
 	initPages()
 
 	go func() {
-		if _, err := os.Stat(ExecPath + "/server.crt"); os.IsNotExist(err) {
+		if _, err := os.Stat(ExecPath + "/HTTPS-key/server.crt"); os.IsNotExist(err) {
 			fmt.Printf("server.crt does not exist. HTTPS NOT STARTED\n")
-		} else if _, err := os.Stat(ExecPath + "/server.key"); os.IsNotExist(err) {
+		} else if _, err := os.Stat(ExecPath + "/HTTPS-key/server.key"); os.IsNotExist(err) {
 			fmt.Printf("server.key does not exist. HTTPS NOT STARTED\n")
 		} else {
 			// begin https server
-			err_https := http.ListenAndServeTLS(":"+SitePort, ExecPath+"/server.crt", ExecPath+"/server.key", nil)
+			err_https := http.ListenAndServeTLS(":"+SitePort, ExecPath+"/HTTPS-key/server.crt", ExecPath+"/HTTPS-key/server.key", nil)
 			if err_https != nil {
 				log.Fatal("Web server (HTTPS): \n", err_https)
 			}
