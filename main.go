@@ -15,6 +15,7 @@ var MainSiteURL string
 var SitePort string
 var NonHttpsPort string
 var ExecPath string
+var ProgramName string
 
 func main() {
 	// get the path of the program.
@@ -26,13 +27,16 @@ func main() {
 	// Begins the startup script.
 	StartUp()
 	// Define system variables
+	ProgramName = "Inventory System"
 	MainSiteURL = "10.0.0.2"
 	SitePort = "8443"
 	NonHttpsPort = "8080"
 	fmt.Println("The server ip is: " + GetServerIp(0))
 	openbrowser("http://" + MainSiteURL + ":" + NonHttpsPort + "/")
+	openbrowser("https://" + MainSiteURL + ":" + SitePort + "/")
 	//initPages
 	initPages()
+	readCSV("file.de")
 
 	go func() {
 		if _, err := os.Stat(ExecPath + "/HTTPS-key/server.crt"); os.IsNotExist(err) {

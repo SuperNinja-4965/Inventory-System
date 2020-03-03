@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -9,14 +10,39 @@ import (
 	"strings"
 )
 
+type MainIndexPage struct {
+	Catagories  template.HTML
+	ProjectName string
+}
+
 //initPages
 func initPages() {
-	http.HandleFunc(MainSiteURL+"/", indexPage)
-	GetCatagories()
+	http.HandleFunc("/", indexPage)
+	http.HandleFunc("/", CatagoryPage)
+	// Making the assets folder work.
+	// Location of local file
+	fs := http.FileServer(http.Dir(ExecPath + "/html/assets/"))
+	//location on server when hosted
+	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 }
 
 func indexPage(w http.ResponseWriter, r *http.Request) {
-
+	GetCatagories()
+	var cats string
+	//fmt.Println(len(catagories))
+	if len(catagories) != 0 {
+		for i := 0; i <= len(catagories)-1; i++ {
+			cats = cats + ItemView("/"+catagories[i], catagories[i], "1")
+		}
+		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
+		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+		t.Execute(w, p)
+	} else {
+		cats = cats + ItemView("", "NO ITEMS FOUND", "0")
+		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
+		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+		t.Execute(w, p)
+	}
 }
 
 var catagories []string
