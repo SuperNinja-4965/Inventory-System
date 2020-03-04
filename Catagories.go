@@ -3,34 +3,49 @@ package main
 import (
 	"html/template"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
-func CatagoryPage(w http.ResponseWriter, r *http.Request, CatURL string) {
-	for i := 0; i <= len(catagories)-1; i++ {
-		if CatURL == catagories[i] {
-			readCSV(CatURL)
-			var cats string
-			//fmt.Println(len(catagories))
-			if len(items) != 0 {
-				for i := 0; i <= len(items)-1; i++ {
-					cats = cats + ItemView("/"+items[i], items[i], "1")
+func categoryPage(w http.ResponseWriter, r *http.Request, CatURL string) {
+	//fmt.Println(CatURL)
+	if CatURL == "" {
+		http.Redirect(w, r, "/", 301)
+	}
+	if string(CatURL[len(CatURL)-1]) == "/" {
+		temp := reverse(CatURL)
+		CatURL = reverse(strings.Replace(temp, "/", "", 1))
+	}
+	//fmt.Println(CatURL)
+	if strings.Contains(CatURL, "/") == true {
+		itemcatsplit := strings.Split(CatURL, "/")
+		LoadItemPage(w, r, itemcatsplit[1], itemcatsplit[0])
+	} else {
+		for i := 0; i <= len(catagories)-1; i++ {
+			if CatURL == catagories[i] {
+				readCSV(CatURL)
+				var cats string
+				//fmt.Println(len(catagories))
+				if len(items) != 0 {
+					for i := 0; i <= len(items)-1; i++ {
+						cats = cats + ItemView("/category/"+CatURL+"/"+items[i], items[i], "Value: "+Value[i]+", Amount: "+strconv.Itoa(ItemsTotal[i]))
+					}
+					p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
+					t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+					t.Execute(w, p)
+				} else {
+					cats = cats + ItemView("", "NO ITEMS FOUND", "0")
+					p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
+					t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+					t.Execute(w, p)
 				}
-				p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
-				t, _ := template.ParseFiles(ExecPath + "/html/index.html")
-				t.Execute(w, p)
-			} else {
-				cats = cats + ItemView("", "NO ITEMS FOUND", "0")
-				p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
-				t, _ := template.ParseFiles(ExecPath + "/html/index.html")
-				t.Execute(w, p)
 			}
 		}
 	}
 }
 
 func CatagoryPageDefine() {
-	http.HandleFunc("/catagory/", makeHandlercat(CatagoryPage))
+	http.HandleFunc("/category/", makeHandlercat(categoryPage))
 }
 
 func makeHandlercat(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -59,7 +74,22 @@ func makeHandlercat(fn func(http.ResponseWriter, *http.Request, string)) http.Ha
 		//fmt.Printf("%s", r.URL.Path)
 		//fn(w, r, m[2])
 		urll := r.URL.Path
-		urll = strings.Replace(urll, "/catagory/", "", -1)
-		fn(w, r, urll)
+		if urll == "/category/" {
+			http.Redirect(w, r, "/", 301)
+		} else if urll == "/category" {
+			http.Redirect(w, r, "/", 301)
+		} else {
+			urll = strings.Replace(urll, "/category/", "", -1)
+			//fmt.Println(urll)
+			fn(w, r, urll)
+		}
 	}
+}
+
+func reverse(s string) string {
+	runes := []rune(s)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -32,7 +33,7 @@ func indexPage(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(len(catagories))
 	if len(catagories) != 0 {
 		for i := 0; i <= len(catagories)-1; i++ {
-			cats = cats + ItemView("/catagory/"+catagories[i], catagories[i], "1")
+			cats = cats + ItemView("/category/"+catagories[i], catagories[i], "1")
 		}
 		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
 		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
@@ -62,7 +63,16 @@ func GetCatagories() {
 			count = count + 1
 			//fmt.Println(count)
 			if count > 1 {
-				path = strings.ReplaceAll(path, ExecPath+"\\data\\", "")
+				switch runtime.GOOS {
+				case "linux":
+					path = strings.ReplaceAll(path, ExecPath+"/data/", "")
+				case "windows":
+					path = strings.ReplaceAll(path, ExecPath+"\\data\\", "")
+				case "darwin":
+					path = strings.ReplaceAll(path, ExecPath+"/data/", "")
+				default:
+					path = strings.ReplaceAll(path, ExecPath+"/data/", "")
+				}
 				path = strings.ReplaceAll(path, ".csv", "")
 				if path == "" {
 				} else if path == "\n" {

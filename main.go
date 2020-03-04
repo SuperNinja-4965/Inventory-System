@@ -18,6 +18,7 @@ var ExecPath string
 var ProgramName string
 
 func main() {
+	//rtr := mux.NewRouter()
 	// get the path of the program.
 	var err2 error
 	ExecPath, err2 = filepath.Abs(filepath.Dir(os.Args[0]))
@@ -28,22 +29,23 @@ func main() {
 	StartUp()
 	// Define system variables
 	ProgramName = "Inventory System"
-	MainSiteURL = "10.0.0.2"
+	MainSiteURL = "127.0.0.1"
 	SitePort = "8443"
 	NonHttpsPort = "8080"
 	fmt.Println("The server ip is: " + GetServerIp(0))
-	openbrowser("http://" + MainSiteURL + ":" + NonHttpsPort + "/")
-	openbrowser("https://" + MainSiteURL + ":" + SitePort + "/")
 	//initPages
 	initPages()
 	//readCSV("file.de")
-
+	//fmt.Println(ExecPath)
 	go func() {
 		if _, err := os.Stat(ExecPath + "/HTTPS-key/server.crt"); os.IsNotExist(err) {
 			fmt.Printf("server.crt does not exist. HTTPS NOT STARTED\n")
+			openbrowser("http://" + MainSiteURL + ":" + NonHttpsPort + "/")
 		} else if _, err := os.Stat(ExecPath + "/HTTPS-key/server.key"); os.IsNotExist(err) {
 			fmt.Printf("server.key does not exist. HTTPS NOT STARTED\n")
+			openbrowser("http://" + MainSiteURL + ":" + NonHttpsPort + "/")
 		} else {
+			openbrowser("https://" + MainSiteURL + ":" + SitePort + "/")
 			// begin https server
 			err_https := http.ListenAndServeTLS(":"+SitePort, ExecPath+"/HTTPS-key/server.crt", ExecPath+"/HTTPS-key/server.key", nil)
 			if err_https != nil {
