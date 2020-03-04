@@ -18,7 +18,7 @@ type MainIndexPage struct {
 //initPages
 func initPages() {
 	http.HandleFunc("/", indexPage)
-	http.HandleFunc("/", CatagoryPage)
+	CatagoryPageDefine()
 	// Making the assets folder work.
 	// Location of local file
 	fs := http.FileServer(http.Dir(ExecPath + "/html/assets/"))
@@ -32,7 +32,7 @@ func indexPage(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(len(catagories))
 	if len(catagories) != 0 {
 		for i := 0; i <= len(catagories)-1; i++ {
-			cats = cats + ItemView("/"+catagories[i], catagories[i], "1")
+			cats = cats + ItemView("/catagory/"+catagories[i], catagories[i], "1")
 		}
 		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
 		t, _ := template.ParseFiles(ExecPath + "/html/index.html")

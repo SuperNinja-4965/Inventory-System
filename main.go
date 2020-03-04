@@ -36,7 +36,7 @@ func main() {
 	openbrowser("https://" + MainSiteURL + ":" + SitePort + "/")
 	//initPages
 	initPages()
-	readCSV("file.de")
+	//readCSV("file.de")
 
 	go func() {
 		if _, err := os.Stat(ExecPath + "/HTTPS-key/server.crt"); os.IsNotExist(err) {
