@@ -21,25 +21,36 @@ func categoryPage(w http.ResponseWriter, r *http.Request, CatURL string) {
 		itemcatsplit := strings.Split(CatURL, "/")
 		LoadItemPage(w, r, itemcatsplit[1], itemcatsplit[0])
 	} else {
+		var found bool = false
 		for i := 0; i <= len(catagories)-1; i++ {
-			if CatURL == catagories[i] {
-				readCSV(CatURL)
-				var cats string
-				//fmt.Println(len(catagories))
-				if len(items) != 0 {
-					for i := 0; i <= len(items)-1; i++ {
-						cats = cats + ItemView("/category/"+CatURL+"/"+items[i], items[i], "Value: "+Value[i]+", Amount: "+strconv.Itoa(ItemsTotal[i]))
+			if found == false {
+				if CatURL == catagories[i] {
+					found = true
+					readCSV(CatURL)
+					var cats string
+					//fmt.Println(len(catagories))
+					if len(items) != 0 {
+						for i := 0; i <= len(items)-1; i++ {
+							cats = cats + ItemView("/category/"+CatURL+"/"+items[i], items[i], "Value: "+Value[i]+", Amount: "+strconv.Itoa(ItemsTotal[i]))
+						}
+						p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
+						t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+						t.Execute(w, p)
+					} else {
+						cats = cats + ItemView("", "NO items found.", "0")
+						p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
+						t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+						t.Execute(w, p)
 					}
-					p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
-					t, _ := template.ParseFiles(ExecPath + "/html/index.html")
-					t.Execute(w, p)
-				} else {
-					cats = cats + ItemView("", "NO ITEMS FOUND", "0")
-					p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
-					t, _ := template.ParseFiles(ExecPath + "/html/index.html")
-					t.Execute(w, p)
 				}
 			}
+		}
+		if found == false {
+			var cats string
+			cats = cats + ItemView("", "Category NOT found.", "0")
+			p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
+			t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+			t.Execute(w, p)
 		}
 	}
 }

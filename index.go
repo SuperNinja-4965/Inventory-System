@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 type MainIndexPage struct {
 	Catagories  template.HTML
 	ProjectName string
+	Table       template.HTML
 }
 
 //initPages
@@ -35,12 +35,12 @@ func indexPage(w http.ResponseWriter, r *http.Request) {
 		for i := 0; i <= len(catagories)-1; i++ {
 			cats = cats + ItemView("/category/"+catagories[i], catagories[i], "1")
 		}
-		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
+		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
 		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
 		t.Execute(w, p)
 	} else {
-		cats = cats + ItemView("", "NO ITEMS FOUND", "0")
-		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName}
+		cats = cats + ItemView("", "NO cats found.", "0")
+		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
 		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
 		t.Execute(w, p)
 	}
@@ -87,6 +87,6 @@ func GetCatagories() {
 	if err != nil {
 		log.Println(err)
 	} else {
-		fmt.Println("Loaded Catagories")
+		//fmt.Println("Loaded Catagories")
 	}
 }

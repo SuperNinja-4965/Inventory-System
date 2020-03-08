@@ -55,6 +55,13 @@ func StartUp() {
 		}
 		fmt.Printf("/html/assets/css/styles.css directory created.\n")
 	}
+	if _, err := os.Stat(ExecPath + "/html/assets/css/styles2.css"); os.IsNotExist(err) {
+		err := WriteToFile(ExecPath+"/html/assets/css/styles2.css", cssTwo)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("/html/assets/css/styles2.css directory created.\n")
+	}
 
 }
 
