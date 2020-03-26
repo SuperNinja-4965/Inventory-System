@@ -20,6 +20,7 @@ type MainIndexPage struct {
 func initPages() {
 	http.HandleFunc("/", indexPage)
 	CatagoryPageDefine()
+	initNew()
 	// Making the assets folder work.
 	// Location of local file
 	fs := http.FileServer(http.Dir(ExecPath + "/html/assets/"))

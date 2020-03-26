@@ -61,29 +61,6 @@ func CatagoryPageDefine() {
 
 func makeHandlercat(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		// if strings.Contains(r.URL.Path, ".html") {
-		// 	if strings.Contains(r.URL.Path, "index.html") {
-		// 		length := len(r.URL.Path)
-		// 		length = length - 11
-		// 		runes := []rune(r.URL.Path)
-		// 		http.Redirect(w, r, "../../"+string(runes[0:length]), 307)
-		// 	} else {
-		// 		length := len(r.URL.Path)
-		// 		length = length - 5
-		// 		runes := []rune(r.URL.Path)
-		// 		http.Redirect(w, r, "../../"+string(runes[0:length]), 307)
-		// 	}
-		// 	return
-		// }
-		// m := validPath.FindStringSubmatch(r.URL.Path)
-		// if m == nil {
-		// 	http.Redirect(w, r, "../../../errorPages/not_found", 307)
-		// 	fmt.Printf("404 Error at %s @ %s\n", r.URL.Path, dateTimeFormatted())
-		// 	return
-		// }
-		//fmt.Printf("%s", r.URL.Path)
-		//fn(w, r, m[2])
 		urll := r.URL.Path
 		if urll == "/category/" {
 			http.Redirect(w, r, "/", 301)
