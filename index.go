@@ -11,9 +11,8 @@ import (
 )
 
 type MainIndexPage struct {
-	Catagories  template.HTML
+	Data        template.HTML
 	ProjectName string
-	Table       template.HTML
 }
 
 //initPages
@@ -36,12 +35,12 @@ func indexPage(w http.ResponseWriter, r *http.Request) {
 		for i := 0; i <= len(catagories)-1; i++ {
 			cats = cats + ItemView("/category/"+catagories[i], catagories[i], "1")
 		}
-		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
+		p := MainIndexPage{Data: template.HTML(cats), ProjectName: ProgramName}
 		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
 		t.Execute(w, p)
 	} else {
 		cats = cats + ItemView("", "NO cats found.", "0")
-		p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
+		p := MainIndexPage{Data: template.HTML(cats), ProjectName: ProgramName}
 		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
 		t.Execute(w, p)
 	}

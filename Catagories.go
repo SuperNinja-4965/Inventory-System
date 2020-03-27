@@ -33,12 +33,12 @@ func categoryPage(w http.ResponseWriter, r *http.Request, CatURL string) {
 						for i := 0; i <= len(items)-1; i++ {
 							cats = cats + ItemView("/category/"+CatURL+"/"+items[i], items[i], "Value: "+Value[i]+", Amount: "+strconv.Itoa(ItemsTotal[i]))
 						}
-						p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
+						p := MainIndexPage{Data: template.HTML(cats), ProjectName: ProgramName}
 						t, _ := template.ParseFiles(ExecPath + "/html/index.html")
 						t.Execute(w, p)
 					} else {
 						cats = cats + ItemView("", "NO items found.", "0")
-						p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
+						p := MainIndexPage{Data: template.HTML(cats), ProjectName: ProgramName}
 						t, _ := template.ParseFiles(ExecPath + "/html/index.html")
 						t.Execute(w, p)
 					}
@@ -48,7 +48,7 @@ func categoryPage(w http.ResponseWriter, r *http.Request, CatURL string) {
 		if found == false {
 			var cats string
 			cats = cats + ItemView("", "Category NOT found.", "0")
-			p := MainIndexPage{Catagories: template.HTML(cats), ProjectName: ProgramName, Table: template.HTML("")}
+			p := MainIndexPage{Data: template.HTML(cats), ProjectName: ProgramName}
 			t, _ := template.ParseFiles(ExecPath + "/html/index.html")
 			t.Execute(w, p)
 		}

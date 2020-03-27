@@ -62,7 +62,6 @@ func StartUp() {
 		}
 		fmt.Printf("/html/assets/css/styles2.css directory created.\n")
 	}
-
 }
 
 func check(e error) {
