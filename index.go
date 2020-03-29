@@ -1,13 +1,16 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -46,7 +49,32 @@ func indexPage(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(len(catagories))
 	if len(catagories) != 0 {
 		for i := 0; i <= len(catagories)-1; i++ {
-			cats = cats + ItemView("/category/"+catagories[i], catagories[i], "1")
+			var count int = 1
+			csvfile, err := os.Open(ExecPath + "/data/" + catagories[i] + ".csv")
+			if err != nil {
+				log.Fatalln("Couldn't open the csv file", err)
+			}
+			// Parse the file
+			r := csv.NewReader(csvfile)
+			//r := csv.NewReader(bufio.NewReader(csvfile))
+			// Iterate through the records
+			for {
+				// Read each record from csv
+				_, err := r.Read()
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					log.Fatal(err)
+				}
+				count = count + 1
+			}
+			csvfile.Close()
+			count = count - 1
+			if count == -1 {
+				count = 0
+			}
+			cats = cats + ItemView("/category/"+catagories[i], catagories[i], "Amount of items: "+strconv.Itoa(count))
 		}
 		p := MainIndexPage{Data: template.HTML(cats), ProjectName: ProgramName}
 		t, _ := template.New("indexTemplate").Parse(PageIndex)
