@@ -31,11 +31,13 @@ func initPages() {
 }
 
 func stylesCss(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, cssIndex)
+	w.Header().Add("Content-Type", "text/css")
+	fmt.Fprint(w, cssIndex)
 }
 
 func styles2Css(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, cssTwo)
+	w.Header().Add("Content-Type", "text/css")
+	fmt.Fprint(w, cssTwo)
 }
 
 func indexPage(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +57,10 @@ func indexPage(w http.ResponseWriter, r *http.Request) {
 		t, _ := template.New("indexTemplate").Parse(PageIndex)
 		t.Execute(w, p)
 	}
+}
+
+func ItemView(link string, name string, details string) string {
+	return "<li class=\"folders\"><a href=\"" + link + "\" title=\"files/\"" + name + "\" class=\"folders\"><span class=\"icon folder full\"></span><span class=\"name\">" + name + "</span><span class=\"details\">" + details + "</span></a></li>"
 }
 
 var catagories []string

@@ -26,6 +26,11 @@ func StartUp() {
 		fmt.Printf("/HTTPS-key directory created.\n")
 		err := os.Mkdir(ExecPath+"/HTTPS-key", 0755)
 		check(err)
+		f, err := os.Create(ExecPath + "/HTTPS-key/README.txt")
+		b := bufio.NewWriter(f)
+		b.WriteString("If you want to use HTTPS with this program then you will need to insert 2 files into this directory: A Server Certificate and a Server Private key.\n\n The file which contains the private key should be called: server.key\nAnd the file containing the server certificate should be called: server.crt\n\nIf you do not want to use HTTPS then leave this directory empty.")
+		b.Flush()
+		f.Close()
 	}
 }
 

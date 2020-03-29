@@ -21,6 +21,3 @@ func FileStore() {
 	//
 	//
 }
-func ItemView(link string, name string, details string) string {
-	return "<li class=\"folders\"><a href=\"" + link + "\" title=\"files/\"" + name + "\" class=\"folders\"><span class=\"icon folder full\"></span><span class=\"name\">" + name + "</span><span class=\"details\">" + details + "</span></a></li>"
-}
