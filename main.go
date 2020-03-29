@@ -16,6 +16,7 @@ var SitePort string
 var NonHttpsPort string
 var ExecPath string
 var ProgramName string
+var openBrowserOnLoad bool = true
 
 func main() {
 	//rtr := mux.NewRouter()
@@ -24,6 +25,9 @@ func main() {
 	ExecPath, err2 = filepath.Abs(filepath.Dir(os.Args[0]))
 	if err2 != nil {
 		log.Fatal(err2)
+	}
+	if _, err := os.Stat(ExecPath + "/OpenBrowser.yes"); os.IsNotExist(err) {
+		openBrowserOnLoad = false
 	}
 	// Begins the startup script.
 	StartUp()
@@ -83,18 +87,20 @@ func GetServerIp(ipNum int) string {
 }
 
 func openbrowser(url string) {
-	var err error
-	switch runtime.GOOS {
-	case "linux":
-		err = exec.Command("xdg-open", url).Start()
-	case "windows":
-		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-	case "darwin":
-		err = exec.Command("open", url).Start()
-	default:
-		err = fmt.Errorf("unsupported platform")
-	}
-	if err != nil {
-		log.Fatal(err)
+	if openBrowserOnLoad == true {
+		var err error
+		switch runtime.GOOS {
+		case "linux":
+			err = exec.Command("xdg-open", url).Start()
+		case "windows":
+			err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+		case "darwin":
+			err = exec.Command("open", url).Start()
+		default:
+			err = fmt.Errorf("unsupported platform")
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
