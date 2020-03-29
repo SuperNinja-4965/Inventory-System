@@ -135,11 +135,13 @@ func editCategory(w http.ResponseWriter, r *http.Request, EditURL string) {
 					b := bufio.NewWriter(f)
 					for i := 1; i <= Reported_count; i++ {
 						iToString := strconv.Itoa(i)
-						b.WriteString("\"" + r.FormValue(iToString+"-1") + "\",")
-						b.WriteString("\"" + r.FormValue(iToString+"-2") + "\",")
-						b.WriteString(r.FormValue(iToString+"-3") + ",")
-						b.WriteString(r.FormValue(iToString+"-4") + ",")
-						b.WriteString("\"" + r.FormValue(iToString+"-5") + "\"\n")
+						if r.FormValue(iToString+"-0") != "yes" {
+							b.WriteString("\"" + r.FormValue(iToString+"-1") + "\",")
+							b.WriteString("\"" + r.FormValue(iToString+"-2") + "\",")
+							b.WriteString(r.FormValue(iToString+"-3") + ",")
+							b.WriteString(r.FormValue(iToString+"-4") + ",")
+							b.WriteString("\"" + r.FormValue(iToString+"-5") + "\"\n")
+						}
 					}
 					if r.FormValue("AddRow") == "Yes" {
 						NewReported_count := Reported_count + 1
@@ -172,13 +174,14 @@ func editCategory(w http.ResponseWriter, r *http.Request, EditURL string) {
 						log.Fatal(err)
 					}
 					// Form the html for the table.
-					var RowTemplate1 string = "<tr><td><input id=\"" + strconv.Itoa(count) + "-1\" name=\"" + strconv.Itoa(count) + "-1\" size=\"10%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
+					var RowDelTemplate string = "<tr><td><input type=\"checkbox\" id=\"" + strconv.Itoa(count) + "-0\" name=\"" + strconv.Itoa(count) + "-0\" value=\"yes\" disabled>"
+					var RowTemplate1 string = "</td><td><input id=\"" + strconv.Itoa(count) + "-1\" name=\"" + strconv.Itoa(count) + "-1\" size=\"10%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
 					var RowTemplate2 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-2\" name=\"" + strconv.Itoa(count) + "-2\" size=\"6%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
 					var RowTemplate3 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-3\" name=\"" + strconv.Itoa(count) + "-3\" size=\"6%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
 					var RowTemplate4 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-4\" name=\"" + strconv.Itoa(count) + "-4\" size=\"6%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
 					var RowTemplate6 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-5\" name=\"" + strconv.Itoa(count) + "-5\" size=\"66%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
 					var RowTemplateEnd string = "\"></td></tr>"
-					outputPrepares = outputPrepares + RowTemplate1 + record[0] + RowTemplate2 + record[1] + RowTemplate3 + record[2] + RowTemplate4 + record[3] + RowTemplate6 + record[4] + RowTemplateEnd
+					outputPrepares = outputPrepares + RowDelTemplate + RowTemplate1 + record[0] + RowTemplate2 + record[1] + RowTemplate3 + record[2] + RowTemplate4 + record[3] + RowTemplate6 + record[4] + RowTemplateEnd
 					count = count + 1
 				}
 				csvfile.Close()
@@ -190,8 +193,8 @@ func editCategory(w http.ResponseWriter, r *http.Request, EditURL string) {
 				} else if PostSuccess == "Error" {
 					ErrorReport = "<h2 style=\"color:Red;\">Data was NOT saved.</h2><br>"
 				}
-				var templatePart1 string = "<script>function ConfirmDelete() {  if (confirm(\"Are you sure you want to delete this category?\")) {  	document.getElementById(\"DeleteCat\").setAttribute(\"value\", \"Yes\");    document.getElementById(\"CatForm\").submit();  } else {  	document.getElementById(\"DeleteCat\").setAttribute(\"value\", \"No\");    document.getElementById(\"CatForm\").submit();  }}</script><center><h1 style=\"color:white;\">Editing Category: " + CATNAME + "</h1><div class=\"container\"><br><form id=\"CatForm\" method=\"POST\"><h2 style=\"color:white;\">Record Count: " + strconv.Itoa(count) + "</h2><br>" + ErrorReport + "<input type=\"hidden\" id=\"Count\" name=\"Count\" value=\"" + strconv.Itoa(count) + "\"><table><thead><tr><th>Name</th><th>Value</th><th>Amount available</th><th>Amount in use</th><th>Notes</th></tr></thead><tbody>"
-				var templatePartEnd string = "</tbody></table><br><button name=\"AddRow\" type=\"submit\" value=\"Yes\">Add Item</button> <button id=\"DeleteCat\" name=\"DeleteCat\" onclick=\"ConfirmDelete()\" value=\"No\">Delete Category</button> <br> <input type=\"submit\" value=\"Save Changes\"></form></div></center>"
+				var templatePart1 string = "<script>function EnableBoxes() {  var inputs = document.getElementsByTagName(\"input\");for(var i = 0; i < inputs.length; i++) {    if(inputs[i].type == \"checkbox\") {        inputs[i].disabled = false;     }  }} function ConfirmDelete() {  if (confirm(\"Are you sure you want to delete this category?\")) {  	document.getElementById(\"DeleteCat\").setAttribute(\"value\", \"Yes\");    document.getElementById(\"CatForm\").submit();  } else {  	document.getElementById(\"DeleteCat\").setAttribute(\"value\", \"No\"); }}</script><center><h1 style=\"color:white;\">Editing Category: " + CATNAME + "</h1><div class=\"container\"><br><form id=\"CatForm\" method=\"POST\"><h2 style=\"color:white;\">Record Count: " + strconv.Itoa(count) + "</h2><br>" + ErrorReport + "<input type=\"hidden\" id=\"Count\" name=\"Count\" value=\"" + strconv.Itoa(count) + "\"><table><thead><tr><th>Del?</th><th>Name</th><th>Value</th><th>Amount available</th><th>Amount in use</th><th>Notes</th></tr></thead><tbody>"
+				var templatePartEnd string = "</tbody></table><br><button name=\"AddRow\" type=\"submit\" value=\"Yes\">Add Item</button>  <button type=\"button\" id=\"EnableBoxesButton\" onclick=\"EnableBoxes()\">Enable Del Checkboxes</button> <br><br> <button style=\"color:red;\" type=\"button\" id=\"DeleteCat\" name=\"DeleteCat\" onclick=\"ConfirmDelete()\" value=\"No\">Delete Category</button> <br><br> <input type=\"submit\" value=\"Save Changes\"></form></div></center>"
 				var outputDisplay string = templatePart1 + outputPrepares + templatePartEnd
 				p := MainIndexPage{Data: template.HTML(outputDisplay), ProjectName: ProgramName}
 				t, _ := template.ParseFiles(ExecPath + "/html/index.html")
