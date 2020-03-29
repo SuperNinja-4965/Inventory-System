@@ -46,13 +46,17 @@ func newCategory(w http.ResponseWriter, r *http.Request) {
 		t.Execute(w, p)
 	} else {
 		if _, err := os.Stat(ExecPath + "/data/" + CategoryNew.CatName + ".csv"); os.IsNotExist(err) {
-			err := WriteToFile(ExecPath+"/data/"+CategoryNew.CatName+".csv", "item1,100f,100,10,\"This is a cool item, and it always will be.\"")
+			f, err := os.Create(ExecPath + "/data/" + CategoryNew.CatName + ".csv")
+			// Create a new writer.
+			b := bufio.NewWriter(f)
+			b.WriteString("\"item1\",\"100f\",100,10,\"This is a cool item, and it always will be.\"")
+			b.Flush()
+			f.Close()
+			//err := WriteToFile(ExecPath+"/data/"+CategoryNew.CatName+".csv", "item1,100f,100,10,\"This is a cool item, and it always will be.\"")
 			if err == nil {
 				fmt.Printf("/data/" + CategoryNew.CatName + ".csv" + " file created.\n")
 				// if successfully created cat.
-				p := MainIndexPage{Data: template.HTML("<center> <h1 style=\"color:green;\">Category has been created</h1> </center> <br>" + NewCatForm), ProjectName: ProgramName}
-				t, _ := template.ParseFiles(ExecPath + "/html/index.html")
-				t.Execute(w, p)
+				http.Redirect(w, r, "/editCategory/"+CategoryNew.CatName, 303)
 			} else {
 				// If error creating cat
 				p := MainIndexPage{Data: template.HTML("<center> <h1 style=\"color:red;\">There was an error with creating that category</h1> </center> <br>" + NewCatForm), ProjectName: ProgramName}
@@ -103,73 +107,96 @@ func editCategory(w http.ResponseWriter, r *http.Request, EditURL string) {
 			t, _ := template.ParseFiles(ExecPath + "/html/index.html")
 			t.Execute(w, p)
 		} else {
-			var PostSuccess string = "N/A"
-			if r.Method == http.MethodPost {
-				counts := NewCount{
-					Counts: r.FormValue("Count"),
-				}
-				Reported_count, _ := strconv.Atoi(counts.Counts)
-				// Use os.Create to create a file for writing.
-				f, _ := os.Create(ExecPath + "/data/" + EditURL + ".csv")
-				// Create a new writer.
-				w := bufio.NewWriter(f)
-				for i := 1; i <= Reported_count; i++ {
-					iToString := strconv.Itoa(i)
-					w.WriteString("\"" + r.FormValue(iToString+"-1") + "\",")
-					w.WriteString("\"" + r.FormValue(iToString+"-2") + "\",")
-					w.WriteString(r.FormValue(iToString+"-3") + ",")
-					w.WriteString(r.FormValue(iToString+"-4") + ",")
-					w.WriteString("\"" + r.FormValue(iToString+"-5") + "\"\n")
-				}
-				// Flush.
-				w.Flush()
-				PostSuccess = "Success"
-			}
-
-			//Display entire categories data in an editable table.
-			var count int = 1
-			var outputPrepares string = ""
-			csvfile, err := os.Open(ExecPath + "/data/" + EditURL + ".csv")
-			if err != nil {
-				log.Fatalln("Couldn't open the csv file", err)
-			}
-			// Parse the file
-			r := csv.NewReader(csvfile)
-			//r := csv.NewReader(bufio.NewReader(csvfile))
-			// Iterate through the records
-			for {
-				// Read each record from csv
-				record, err := r.Read()
-				if err == io.EOF {
-					break
-				}
+			if r.FormValue("DeleteCat") == "Yes" {
+				var err = os.Remove(ExecPath + "/data/" + EditURL + ".csv")
 				if err != nil {
-					log.Fatal(err)
+					fmt.Println(err)
+					var response string = "<center><h1 style=\"color:red;\">There was an error deleting that file.</h1></center>"
+					p := MainIndexPage{Data: template.HTML(response), ProjectName: ProgramName}
+					t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+					t.Execute(w, p)
+				} else {
+					var response string = "<center><h1 style=\"color:red;\">Category " + EditURL + " Deleted.</h1></center><meta http-equiv=\"refresh\" content=\"1;url=/editCategory/\" />"
+					p := MainIndexPage{Data: template.HTML(response), ProjectName: ProgramName}
+					t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+					t.Execute(w, p)
 				}
-				// Form the html for the table.
-				var RowTemplate1 string = "<tr><td><input id=\"" + strconv.Itoa(count) + "-1\" name=\"" + strconv.Itoa(count) + "-1\" size=\"10%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
-				var RowTemplate2 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-2\" name=\"" + strconv.Itoa(count) + "-2\" size=\"6%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
-				var RowTemplate3 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-3\" name=\"" + strconv.Itoa(count) + "-3\" size=\"6%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
-				var RowTemplate4 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-4\" name=\"" + strconv.Itoa(count) + "-4\" size=\"6%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
-				var RowTemplate6 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-5\" name=\"" + strconv.Itoa(count) + "-5\" size=\"66%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
-				var RowTemplateEnd string = "\"></td></tr>"
-				outputPrepares = outputPrepares + RowTemplate1 + record[0] + RowTemplate2 + record[1] + RowTemplate3 + record[2] + RowTemplate4 + record[3] + RowTemplate6 + record[4] + RowTemplateEnd
-				count = count + 1
+				return
+			} else {
+				var PostSuccess string = "N/A"
+				if r.Method == http.MethodPost {
+					counts := NewCount{
+						Counts: r.FormValue("Count"),
+					}
+					Reported_count, _ := strconv.Atoi(counts.Counts)
+					// Use os.Create to create a file for writing.
+					f, _ := os.Create(ExecPath + "/data/" + EditURL + ".csv")
+					// Create a new writer.
+					b := bufio.NewWriter(f)
+					for i := 1; i <= Reported_count; i++ {
+						iToString := strconv.Itoa(i)
+						b.WriteString("\"" + r.FormValue(iToString+"-1") + "\",")
+						b.WriteString("\"" + r.FormValue(iToString+"-2") + "\",")
+						b.WriteString(r.FormValue(iToString+"-3") + ",")
+						b.WriteString(r.FormValue(iToString+"-4") + ",")
+						b.WriteString("\"" + r.FormValue(iToString+"-5") + "\"\n")
+					}
+					if r.FormValue("AddRow") == "Yes" {
+						NewReported_count := Reported_count + 1
+						b.WriteString("\"NewItem" + strconv.Itoa(NewReported_count) + "\",\"100f\",100,10,\"This is a cool item, and it always will be.\"\n")
+					}
+					// Flush.
+					b.Flush()
+					f.Close()
+					PostSuccess = "Success"
+				}
+
+				//Display entire categories data in an editable table.
+				var count int = 1
+				var outputPrepares string = ""
+				csvfile, err := os.Open(ExecPath + "/data/" + EditURL + ".csv")
+				if err != nil {
+					log.Fatalln("Couldn't open the csv file", err)
+				}
+				// Parse the file
+				r := csv.NewReader(csvfile)
+				//r := csv.NewReader(bufio.NewReader(csvfile))
+				// Iterate through the records
+				for {
+					// Read each record from csv
+					record, err := r.Read()
+					if err == io.EOF {
+						break
+					}
+					if err != nil {
+						log.Fatal(err)
+					}
+					// Form the html for the table.
+					var RowTemplate1 string = "<tr><td><input id=\"" + strconv.Itoa(count) + "-1\" name=\"" + strconv.Itoa(count) + "-1\" size=\"10%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
+					var RowTemplate2 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-2\" name=\"" + strconv.Itoa(count) + "-2\" size=\"6%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
+					var RowTemplate3 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-3\" name=\"" + strconv.Itoa(count) + "-3\" size=\"6%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
+					var RowTemplate4 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-4\" name=\"" + strconv.Itoa(count) + "-4\" size=\"6%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
+					var RowTemplate6 string = "\"></td><td><input id=\"" + strconv.Itoa(count) + "-5\" name=\"" + strconv.Itoa(count) + "-5\" size=\"66%\" style=\"background-color:transparent;color:white;border:0;\" value=\""
+					var RowTemplateEnd string = "\"></td></tr>"
+					outputPrepares = outputPrepares + RowTemplate1 + record[0] + RowTemplate2 + record[1] + RowTemplate3 + record[2] + RowTemplate4 + record[3] + RowTemplate6 + record[4] + RowTemplateEnd
+					count = count + 1
+				}
+				csvfile.Close()
+				count = count - 1
+				var CATNAME string = EditURL
+				var ErrorReport string = ""
+				if PostSuccess == "Success" {
+					ErrorReport = "<h2 style=\"color:Green;\">Data was saved successfully!</h2><br>"
+				} else if PostSuccess == "Error" {
+					ErrorReport = "<h2 style=\"color:Red;\">Data was NOT saved.</h2><br>"
+				}
+				var templatePart1 string = "<script>function ConfirmDelete() {  if (confirm(\"Are you sure you want to delete this category?\")) {  	document.getElementById(\"DeleteCat\").setAttribute(\"value\", \"Yes\");    document.getElementById(\"CatForm\").submit();  } else {  	document.getElementById(\"DeleteCat\").setAttribute(\"value\", \"No\");    document.getElementById(\"CatForm\").submit();  }}</script><center><h1 style=\"color:white;\">Editing Category: " + CATNAME + "</h1><div class=\"container\"><br><form id=\"CatForm\" method=\"POST\"><h2 style=\"color:white;\">Record Count: " + strconv.Itoa(count) + "</h2><br>" + ErrorReport + "<input type=\"hidden\" id=\"Count\" name=\"Count\" value=\"" + strconv.Itoa(count) + "\"><table><thead><tr><th>Name</th><th>Value</th><th>Amount available</th><th>Amount in use</th><th>Notes</th></tr></thead><tbody>"
+				var templatePartEnd string = "</tbody></table><br><button name=\"AddRow\" type=\"submit\" value=\"Yes\">Add Item</button> <button id=\"DeleteCat\" name=\"DeleteCat\" onclick=\"ConfirmDelete()\" value=\"No\">Delete Category</button> <br> <input type=\"submit\" value=\"Save Changes\"></form></div></center>"
+				var outputDisplay string = templatePart1 + outputPrepares + templatePartEnd
+				p := MainIndexPage{Data: template.HTML(outputDisplay), ProjectName: ProgramName}
+				t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+				t.Execute(w, p)
 			}
-			count = count - 1
-			var CATNAME string = EditURL
-			var ErrorReport string = ""
-			if PostSuccess == "Success" {
-				ErrorReport = "<h2 style=\"color:Green;\">Data was saved successfully!</h2><br>"
-			} else if PostSuccess == "Error" {
-				ErrorReport = "<h2 style=\"color:Red;\">Data was NOT saved.</h2><br>"
-			}
-			var templatePart1 string = "<center><h1 style=\"color:white;\">Editing Category: " + CATNAME + "</h1><div class=\"container\"><br><form method=\"POST\"><h2 style=\"color:white;\">Record Count: " + strconv.Itoa(count) + "</h2><br>" + ErrorReport + "<input type=\"hidden\" id=\"Count\" name=\"Count\" value=\"" + strconv.Itoa(count) + "\"><table><thead><tr><th>Name</th><th>Value</th><th>Amount available</th><th>Amount in use</th><th>Notes</th></tr></thead><tbody>"
-			var templatePartEnd string = "</tbody></table><br><input type=\"submit\" value=\"Save Changes\"> </form></div></center>"
-			var outputDisplay string = templatePart1 + outputPrepares + templatePartEnd
-			p := MainIndexPage{Data: template.HTML(outputDisplay), ProjectName: ProgramName}
-			t, _ := template.ParseFiles(ExecPath + "/html/index.html")
-			t.Execute(w, p)
 		}
 	}
 }

@@ -66,6 +66,7 @@ func readCSV(filee string) {
 			ItemsTotal = append(ItemsTotal, conv1+conv2)
 		}
 	}
+	csvfile.Close()
 }
 
 func readCSVItemSearch(filee string, ItemToFind string) (string, string, int, int, int, string) {
@@ -123,35 +124,7 @@ func readCSVItemSearch(filee string, ItemToFind string) (string, string, int, in
 				//ItemsTotal = append(ItemsTotal, conv1+conv2)
 			}
 		}
+		csvfile.Close()
 	}
 	return "Nothing to find", "Error", 0, 0, 0, "Error"
-}
-
-func EditAndReadCSV(CSVFilee string) string {
-	// Open the file
-	var returnHTML string
-	csvfile, err := os.Open(CSVFilee)
-	if err != nil {
-		log.Fatalln("Couldn't open the csv file", err)
-	}
-
-	// Parse the file
-	r := csv.NewReader(csvfile)
-	//r := csv.NewReader(bufio.NewReader(csvfile))
-
-	// Iterate through the records
-	for {
-		// Read each record from csv
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-		// Form the html for the table.
-
-		fmt.Printf("Question: %s Answer %s\n", record[0], record[1])
-	}
-	return returnHTML
 }
