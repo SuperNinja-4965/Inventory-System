@@ -1,16 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"log"
-
-	//"net"
-	//"net/http"
-	"os"
-	//"os/exec"
-	//"path/filepath"
-	//"runtime"
 	"io"
+	"log"
+	"os"
 )
 
 // StartUp - This is run when the program begins. Checks to see if files and directories exist. Useful for deployment.
@@ -20,47 +15,17 @@ func StartUp() {
 		fmt.Printf("/data directory created.\n")
 		err := os.Mkdir(ExecPath+"/data", 0755)
 		check(err)
-	}
-	if _, err := os.Stat(ExecPath + "/html"); os.IsNotExist(err) {
-		fmt.Printf("/html directory created.\n")
-		err := os.Mkdir(ExecPath+"/html", 0755)
-		check(err)
+		// Creates an example category
+		f, err := os.Create(ExecPath + "/data/Example.csv")
+		b := bufio.NewWriter(f)
+		b.WriteString("\"item1\",\"100f\",100,10,\"This is a cool item, and it always will be.\"")
+		b.Flush()
+		f.Close()
 	}
 	if _, err := os.Stat(ExecPath + "/HTTPS-key"); os.IsNotExist(err) {
 		fmt.Printf("/HTTPS-key directory created.\n")
 		err := os.Mkdir(ExecPath+"/HTTPS-key", 0755)
 		check(err)
-	}
-	if _, err := os.Stat(ExecPath + "/html/index.html"); os.IsNotExist(err) {
-		err := WriteToFile(ExecPath+"/html/index.html", PageIndex)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("/html/index.html directory created.\n")
-	}
-	if _, err := os.Stat(ExecPath + "/html/assets"); os.IsNotExist(err) {
-		fmt.Printf("/html/assets directory created.\n")
-		err := os.Mkdir(ExecPath+"/html/assets", 0755)
-		check(err)
-	}
-	if _, err := os.Stat(ExecPath + "/html/assets/css"); os.IsNotExist(err) {
-		fmt.Printf("/html/assets/css directory created.\n")
-		err := os.Mkdir(ExecPath+"/html/assets/css", 0755)
-		check(err)
-	}
-	if _, err := os.Stat(ExecPath + "/html/assets/css/styles.css"); os.IsNotExist(err) {
-		err := WriteToFile(ExecPath+"/html/assets/css/styles.css", cssIndex)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("/html/assets/css/styles.css directory created.\n")
-	}
-	if _, err := os.Stat(ExecPath + "/html/assets/css/styles2.css"); os.IsNotExist(err) {
-		err := WriteToFile(ExecPath+"/html/assets/css/styles2.css", cssTwo)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("/html/assets/css/styles2.css directory created.\n")
 	}
 }
 

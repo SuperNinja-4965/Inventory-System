@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -22,9 +23,19 @@ func initPages() {
 	initNew()
 	// Making the assets folder work.
 	// Location of local file
-	fs := http.FileServer(http.Dir(ExecPath + "/html/assets/"))
+	//fs := http.FileServer(http.Dir(ExecPath + "/html/assets/"))
 	//location on server when hosted
-	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	//http.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	http.HandleFunc("/assets/css/styles.css", stylesCss)
+	http.HandleFunc("/assets/css/styles2.css", styles2Css)
+}
+
+func stylesCss(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, cssIndex)
+}
+
+func styles2Css(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, cssTwo)
 }
 
 func indexPage(w http.ResponseWriter, r *http.Request) {
@@ -36,12 +47,12 @@ func indexPage(w http.ResponseWriter, r *http.Request) {
 			cats = cats + ItemView("/category/"+catagories[i], catagories[i], "1")
 		}
 		p := MainIndexPage{Data: template.HTML(cats), ProjectName: ProgramName}
-		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+		t, _ := template.New("indexTemplate").Parse(PageIndex)
 		t.Execute(w, p)
 	} else {
 		cats = cats + ItemView("", "NO cats found.", "0")
 		p := MainIndexPage{Data: template.HTML(cats), ProjectName: ProgramName}
-		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+		t, _ := template.New("indexTemplate").Parse(PageIndex)
 		t.Execute(w, p)
 	}
 }

@@ -31,7 +31,7 @@ func newCategory(w http.ResponseWriter, r *http.Request) {
 	//tmpl := template.Must(template.ParseFiles(ExecPath + "/html/NewCategory.html"))
 	if r.Method != http.MethodPost {
 		p := MainIndexPage{Data: template.HTML(NewCatForm), ProjectName: ProgramName}
-		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+		t, _ := template.New("indexTemplate").Parse(PageIndex)
 		t.Execute(w, p)
 		//tmpl.Execute(w, nil)
 		return
@@ -42,7 +42,7 @@ func newCategory(w http.ResponseWriter, r *http.Request) {
 	}
 	if CategoryNew.CatName == "" {
 		p := MainIndexPage{Data: template.HTML("<center> <h1 style=\"color:red;\">Category Name cannot be blank</h1> </center> <br>" + NewCatForm), ProjectName: ProgramName}
-		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+		t, _ := template.New("indexTemplate").Parse(PageIndex)
 		t.Execute(w, p)
 	} else {
 		if _, err := os.Stat(ExecPath + "/data/" + CategoryNew.CatName + ".csv"); os.IsNotExist(err) {
@@ -60,13 +60,13 @@ func newCategory(w http.ResponseWriter, r *http.Request) {
 			} else {
 				// If error creating cat
 				p := MainIndexPage{Data: template.HTML("<center> <h1 style=\"color:red;\">There was an error with creating that category</h1> </center> <br>" + NewCatForm), ProjectName: ProgramName}
-				t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+				t, _ := template.New("indexTemplate").Parse(PageIndex)
 				t.Execute(w, p)
 			}
 		} else {
 			// If file exists
 			p := MainIndexPage{Data: template.HTML("<center> <h1 style=\"color:red;\">Category already exists</h1> </center> <br>" + NewCatForm), ProjectName: ProgramName}
-			t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+			t, _ := template.New("indexTemplate").Parse(PageIndex)
 			t.Execute(w, p)
 		}
 	}
@@ -97,14 +97,14 @@ func editCategory(w http.ResponseWriter, r *http.Request, EditURL string) {
 
 		var outputDisplay string = PreSelectHTML + MiddleSelectHTML + PostSelectHTML
 		p := MainIndexPage{Data: template.HTML(outputDisplay), ProjectName: ProgramName}
-		t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+		t, _ := template.New("indexTemplate").Parse(PageIndex)
 		t.Execute(w, p)
 	} else {
 		if _, err := os.Stat(ExecPath + "/data/" + EditURL + ".csv"); os.IsNotExist(err) {
 			//Throw error if category is not found. Need to add category selection options here
 			var outputDisplay string = "<center> <h1 style=\"color:red;\">There was an error with locating that category</h1> </center> <br>"
 			p := MainIndexPage{Data: template.HTML(outputDisplay), ProjectName: ProgramName}
-			t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+			t, _ := template.New("indexTemplate").Parse(PageIndex)
 			t.Execute(w, p)
 		} else {
 			if r.FormValue("DeleteCat") == "Yes" {
@@ -113,12 +113,12 @@ func editCategory(w http.ResponseWriter, r *http.Request, EditURL string) {
 					fmt.Println(err)
 					var response string = "<center><h1 style=\"color:red;\">There was an error deleting that file.</h1></center>"
 					p := MainIndexPage{Data: template.HTML(response), ProjectName: ProgramName}
-					t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+					t, _ := template.New("indexTemplate").Parse(PageIndex)
 					t.Execute(w, p)
 				} else {
 					var response string = "<center><h1 style=\"color:red;\">Category " + EditURL + " Deleted.</h1></center><meta http-equiv=\"refresh\" content=\"1;url=/editCategory/\" />"
 					p := MainIndexPage{Data: template.HTML(response), ProjectName: ProgramName}
-					t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+					t, _ := template.New("indexTemplate").Parse(PageIndex)
 					t.Execute(w, p)
 				}
 				return
@@ -197,7 +197,7 @@ func editCategory(w http.ResponseWriter, r *http.Request, EditURL string) {
 				var templatePartEnd string = "</tbody></table><br><button name=\"AddRow\" type=\"submit\" value=\"Yes\">Add Item</button>  <button type=\"button\" id=\"EnableBoxesButton\" onclick=\"EnableBoxes()\">Enable Del Checkboxes</button> <br><br> <button style=\"color:red;\" type=\"button\" id=\"DeleteCat\" name=\"DeleteCat\" onclick=\"ConfirmDelete()\" value=\"No\">Delete Category</button> <br><br> <input type=\"submit\" value=\"Save Changes\"></form></div></center>"
 				var outputDisplay string = templatePart1 + outputPrepares + templatePartEnd
 				p := MainIndexPage{Data: template.HTML(outputDisplay), ProjectName: ProgramName}
-				t, _ := template.ParseFiles(ExecPath + "/html/index.html")
+				t, _ := template.New("indexTemplate").Parse(PageIndex)
 				t.Execute(w, p)
 			}
 		}
