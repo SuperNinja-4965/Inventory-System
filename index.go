@@ -24,6 +24,7 @@ func initPages() {
 	http.HandleFunc("/", indexPage)
 	CatagoryPageDefine()
 	initNew()
+	InitSearch()
 	// Making the assets folder work.
 	// Location of local file
 	//fs := http.FileServer(http.Dir(ExecPath + "/html/assets/"))
@@ -44,6 +45,20 @@ func styles2Css(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexPage(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		var searchIndex string = r.FormValue("search")
+		p := MainIndexPage{Data: template.HTML(BeginSearch(searchIndex, "all")), ProjectName: ProgramName}
+		t, _ := template.New("indexTemplate").Parse(PageIndex)
+		t.Execute(w, p)
+		return
+	}
+	if r.FormValue("search") != "" {
+		var searchIndex string = r.FormValue("search")
+		p := MainIndexPage{Data: template.HTML(BeginSearch(searchIndex, "all")), ProjectName: ProgramName}
+		t, _ := template.New("indexTemplate").Parse(PageIndex)
+		t.Execute(w, p)
+		return
+	}
 	GetCatagories()
 	var cats string
 	//fmt.Println(len(catagories))
