@@ -77,7 +77,7 @@ func BeginSearch(Search string, where string) string {
 			buildHTML = buildHTML + ItemView("/category/"+where+"/"+foundItems[i], foundItems[i], "Value: "+foundVals[i]+", Amount: "+strconv.Itoa(foundAmounts[i]))
 		}
 		if buildHTML == "" {
-			return "<center><h1 style=\"color:red;\">>No items were found.<h1><br><h3 style=\"color:white;\">Did you know if you leave the In box blank or type \"all\" the program will search all categories</h3><center><br><br>" + searchOptionsHTML + generateDatalist()
+			return "<center><h1 style=\"color:red;\">No items were found.<h1><br><h3 style=\"color:white;\">Did you know if you leave the In box blank or type \"all\" the program will search all categories</h3><center><br><br>" + searchOptionsHTML + generateDatalist()
 		}
 		return buildHTML
 	}
