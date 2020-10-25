@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -45,28 +44,9 @@ func main() {
 	initPages()
 	//readCSV("file.de")
 	//fmt.Println(ExecPath)
-	go func() {
-		if _, err := os.Stat(ExecPath + "/HTTPS-key/server.crt"); os.IsNotExist(err) {
-			fmt.Printf("server.crt does not exist. HTTPS NOT STARTED\n")
-			JG.OpenBrowser("http://" + MainSiteURL + ":" + NonHttpsPort + "/")
-		} else if _, err := os.Stat(ExecPath + "/HTTPS-key/server.key"); os.IsNotExist(err) {
-			fmt.Printf("server.key does not exist. HTTPS NOT STARTED\n")
-			JG.OpenBrowser("http://" + MainSiteURL + ":" + NonHttpsPort + "/")
-		} else {
-			JG.OpenBrowser("https://" + MainSiteURL + ":" + SitePort + "/")
-			// begin https server
-			err_https := http.ListenAndServeTLS(":"+SitePort, ExecPath+"/HTTPS-key/server.crt", ExecPath+"/HTTPS-key/server.key", nil)
-			if err_https != nil {
-				log.Fatal("Web server (HTTPS): \n", err_https)
-			}
-		}
-	}()
 
-	// begin http server
-	err_http := http.ListenAndServe(":"+NonHttpsPort, nil)
-	if err_http != nil {
-		log.Fatal("Web server (HTTP): ", err_http)
-	}
+	// Uses my GoEssentials Library to start the StartWebServer
+	JG.StartWebServer("80", "443")
 }
 
 func readSettings() {
