@@ -44,7 +44,7 @@ func main() {
 	initPages()
 	//readCSV("file.de")
 	//fmt.Println(ExecPath)
-
+	JG.OpenBrowser("http://localhost")
 	// Uses my GoEssentials Library to start the StartWebServer
 	JG.StartWebServer("80", "443")
 }
