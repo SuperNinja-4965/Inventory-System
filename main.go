@@ -37,16 +37,19 @@ func main() {
 	//ProgramName = "Inventory System"
 	// MainSiteURL is only used when opening browser and so can be left alone.
 	MainSiteURL = "127.0.0.1"
-	//SitePort = "8443"
-	//NonHttpsPort = "8080"
+	//SitePort = "443"
+	//NonHttpsPort = "80"
 	fmt.Println("The server ip is: " + JG.GetServerIP(0))
 	//initPages
 	initPages()
 	//readCSV("file.de")
 	//fmt.Println(ExecPath)
-	JG.OpenBrowser("http://localhost")
+	if openBrowserOnLoad == true {
+		JG.OpenBrowser("http://localhost:" + NonHttpsPort)
+		JG.OpenBrowser("https://localhost:" + SitePort)
+	}
 	// Uses my GoEssentials Library to start the StartWebServer
-	JG.StartWebServer("80", "443")
+	JG.StartWebServer(NonHttpsPort, SitePort)
 }
 
 func readSettings() {
