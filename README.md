@@ -1,3 +1,7 @@
+# This Repository is archived as there is a newer version available. 
+# This Version will not be updated or maintained.
+# For the newest version of Inventory manager go to: https://github.com/SuperNinja-4965/Inventory-System-V2
+
 # Inventory-System
 
 Can be used to keep an iventory of some items. <br>
